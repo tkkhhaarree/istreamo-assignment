@@ -244,4 +244,37 @@ router.delete(
    }
 );
 
+router.put(
+   "/",
+   [check("postid", "postid is required.").not().isEmpty()],
+   auth,
+   async (req, res) => {
+      try {
+         const errors = validationResult(req);
+         if (!errors.isEmpty()) {
+            return res.status(400).json(errors["errors"]);
+         }
+         let p = await Post.findOne({ postid: req.body.postid });
+         if (p.author == req.user.id) {
+            let updateObj = {};
+
+            if (req.body.content) {
+               updateObj.content = req.body.content;
+            }
+            if (req.body.status) {
+               updateObj.status = req.body.status;
+            }
+
+            await Post.findOneAndUpdate({ postid: req.body.postid }, updateObj);
+            res.send("post updated successfully");
+         } else {
+            res.status(500).send("you are not authorized to change this post");
+         }
+      } catch (err2) {
+         console.error(err2.message);
+         res.status(500).send("Server down.");
+      }
+   }
+);
+
 module.exports = router;

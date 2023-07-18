@@ -120,4 +120,44 @@ router.get(
    }
 );
 
+router.put(
+   "/",
+   [check("username", "username is required.").not().isEmpty()],
+   auth,
+   async (req, res) => {
+      try {
+         const errors = validationResult(req);
+         if (!errors.isEmpty()) {
+            return res.status(400).json(errors["errors"]);
+         }
+
+         let user = await User.findOne({ username: req.body.username });
+         if (user.id == req.user.id) {
+            let updateObj = {};
+
+            if (req.body.name) {
+               updateObj.name = req.body.name;
+            }
+            if (req.body.email) {
+               updateObj.email = req.body.email;
+            }
+            if (req.body.mobile) {
+               updateObj.mobile = req.body.mobile;
+            }
+
+            await User.findOneAndUpdate(
+               { username: req.body.username },
+               updateObj
+            );
+            res.send("user profile updated successfully");
+         } else {
+            res.status(500).send("you are not authorized to change this user");
+         }
+      } catch (err2) {
+         console.error(err2.message);
+         res.status(500).send("Server down.");
+      }
+   }
+);
+
 module.exports = router;

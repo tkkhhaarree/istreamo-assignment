@@ -56,4 +56,18 @@ router.get("/random", auth, async (req, res) => {
    }
 });
 
+router.get("/likedposts", auth, async (req, res) => {
+   try {
+      let id = req.user.id;
+      const likedPosts = await Post.find({
+         author: { $ne: id },
+         likes: { $in: [id] },
+      });
+      res.json({ likedPosts });
+   } catch (err2) {
+      console.error(err2.message);
+      res.status(500).send("Server down.");
+   }
+});
+
 module.exports = router;
