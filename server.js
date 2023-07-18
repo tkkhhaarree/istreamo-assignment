@@ -14,6 +14,10 @@ app.use("/profile", require("./routes/profile"));
 
 app.use("/explore", require("./routes/explore"));
 
+app.get("/", (req, res) => {
+   res.send("server running");
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
